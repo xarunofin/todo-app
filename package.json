@@ -1,0 +1,19 @@
+{
+  "name": "todo-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "start:web": "cd apps/web && npm run start",
+    "start:api": "cd apps/api && npm run start:dev",
+    "start": "concurrently npm:start:*"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "3.3.3"
+  }
+}
