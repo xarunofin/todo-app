@@ -28,3 +28,11 @@ export function isValidTodoDescription(description: string): boolean {
 export function isValidTodoStatus(status: string): status is TodoStatus {
   return ['pending', 'in-progress', 'completed'].includes(status);
 }
+
+export function isValidTodo(todo: Todo): boolean {
+  return (
+    isValidTodoTitle(todo.title) &&
+    isValidTodoDescription(todo?.description || '') &&
+    isValidTodoStatus(todo.status)
+  );
+}
