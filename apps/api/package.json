@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@todo-app/api",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@todo-app/shared": "*",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },

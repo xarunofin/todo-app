@@ -1,0 +1,21 @@
+{
+    "name": "@todo-app/shared",
+    "version": "0.2.0",
+    "main": "dist/index.js",
+    "private": true,
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rimraf dist",
+        "prebuild": "npm run clean",
+        "prepare": "npm run build",
+        "watch": "tsc -w"
+    },
+    "devDependencies": {
+        "rimraf": "^6.0.1",
+        "typescript": "^5.5.4"
+    },
+    "files": [
+        "dist"
+    ]
+}
