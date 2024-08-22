@@ -4,12 +4,19 @@
   "private": true,
   "scripts": {
     "format": "prettier --write .",
-    "start:web": "cd apps/web && npm run start",
-    "start:api": "cd apps/api && npm run start:dev",
+    "update:shared": "npm run build -w libs/shared && npm install",
+    "start:web": "npm run start -w apps/web",
+    "start:api": "npm run start:dev -w apps/api",
+    "start:shared": "npm run watch -w libs/shared",
+    "build:web": "npm run build -w apps/web",
+    "build:api": "npm run build -w apps/api",
+    "build:shared": "npm run build -w libs/shared",
+    "build": "concurrently npm:build:*",
     "start": "concurrently npm:start:*"
   },
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "libs/*"
   ],
   "license": "MIT",
   "devDependencies": {
