@@ -4,8 +4,8 @@ export type TodoStatus = 'pending' | 'in-progress' | 'completed';
 
 // Interfaces
 
-export interface Todo {
-  id: number;
+export interface ITodo {
+  id: string;
   title: string;
   description?: string;
   status: TodoStatus;
@@ -29,7 +29,7 @@ export function isValidTodoStatus(status: string): status is TodoStatus {
   return ['pending', 'in-progress', 'completed'].includes(status);
 }
 
-export function isValidTodo(todo: Todo): boolean {
+export function isValidTodo(todo: ITodo): boolean {
   return (
     isValidTodoTitle(todo.title) &&
     isValidTodoDescription(todo?.description || '') &&
