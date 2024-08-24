@@ -1,74 +1,116 @@
 <div
-  class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto"
+  class="max-w-[85rem] flex-1 px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto"
   (window:keyup)="onKeyUp($event)"
 >
-  <div class="mx-auto max-w-2xl">
+  <div class="mx-auto max-w-2xl" tabindex="-2">
     <!-- Todo Input -->
     <div
+      #inputCard
       class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden dark:bg-slate-900 dark:border-gray-700"
+      tabindex="-1"
+      (focus)="onCardFocus()"
+      (blur)="onCardBlur()"
     >
       <div class="p-4 sm:p-7">
         <div class="space-y-4">
-          <div *ngIf="isExpanded">
-            <input
-              type="text"
-              class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
-              placeholder="Title"
-              [(ngModel)]="newTodo.title"
-            />
-          </div>
+          @if (isExpanded) {
+            <div>
+              <input
+                type="text"
+                class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400"
+                placeholder="Title"
+                [(ngModel)]="newTodo.title"
+                (focus)="onTitleFocus()"
+                (blur)="onTitleBlur()"
+              />
+            </div>
+          }
           <div>
             <textarea
               #descriptionInput
-              class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 resize-none"
+              [ngClass]="[
+                'py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 resize-none',
+                isExpanded ? 'text-xs' : 'text-sm',
+              ]"
               [rows]="isExpanded ? 3 : 1"
               placeholder="Make a task..."
               [(ngModel)]="newTodo.description"
-              (input)="onInputChange()"
+              (input)="onDescriptionChange()"
+              (focus)="onDescriptionFocus()"
+              (blur)="onDescriptionBlur()"
+              (click)="onDescriptionClick()"
             ></textarea>
           </div>
         </div>
       </div>
-      <div
-        *ngIf="isExpanded"
-        class="bg-gray-50 border-t border-gray-200 py-3 px-4 dark:bg-slate-800 dark:border-gray-700"
-      >
-        <div class="flex justify-end gap-x-2">
-          <button
-            type="button"
-            (click)="collapse()"
-            class="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            (click)="addTodo()"
-            class="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
-          >
-            Add
-          </button>
+      @if (isExpanded) {
+        <div
+          class="bg-gray-50 border-t border-gray-200 py-3 px-4 dark:bg-slate-800 dark:border-gray-700"
+        >
+          <div class="flex justify-end gap-x-2">
+            <button
+              type="button"
+              (click)="collapse()"
+              class="py-2 px-3 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-offset-gray-800"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </div>
+      }
     </div>
+  </div>
 
-    <div class="mt-5 space-y-3">
+  <!-- Todo Kanban Containers -->
+  <div
+    class="grid md:grid-cols-3 gap-4 mt-4 kanban-container p-4"
+    cdkDropListGroup
+  >
+    @for (statusInfo of todoStatusInfo; track statusInfo) {
       <div
-        *ngFor="let todo of todos"
-        class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7]"
+        class="flex flex-col bg-white border shadow-sm rounded-xl p-4 md:p-5 dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
       >
-        <div class="p-4 md:p-5">
-          <h3
-            *ngIf="todo.title"
-            class="text-lg font-bold text-gray-800 dark:text-white"
-          >
-            {{ todo.title }}
-          </h3>
-          <p class="mt-2 text-gray-500 dark:text-gray-400">
-            {{ todo.description }}
-          </p>
-        </div>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+          {{ statusInfo.title }}
+        </h3>
+        <ul
+          class="flex flex-col gap-2 h-full py-4"
+          [attr.id]="'cdk-drop-list-' + statusInfo.status"
+          cdkDropList
+          [cdkDropListData]="getTodosByStatus(statusInfo.status)"
+          (cdkDropListDropped)="drop($event)"
+        >
+          @for (todo of getTodosByStatus(statusInfo.status); track todo) {
+            <li class="space-y-3">
+              <div
+                cdkDrag
+                cdkDragBoundary=".kanban-container"
+                class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7]"
+              >
+                <div class="p-4 md:p-5">
+                  @if (todo.title) {
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+                      {{ todo.title }}
+                    </h3>
+                  }
+                  @if (todo.description) {
+                    <p class="mt-2 text-gray-500 dark:text-gray-400">
+                      {{ todo.description }}
+                    </p>
+                  }
+                  <button
+                    type="button"
+                    (click)="deleteTodo(todo)"
+                    class="text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
       </div>
-    </div>
+    }
   </div>
 </div>
