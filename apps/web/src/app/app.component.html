@@ -1,25 +1,3 @@
-<ng-container>
-  <nav class="border-b flex items-center px-8 py-4">
-    <ul class="flex gap-2">
-      <li>
-        <a
-          routerLink="/login"
-          routerLinkActive="active"
-          ariaCurrentWhenActive="page"
-          >Login</a
-        >
-      </li>
-      <li>
-        <a
-          routerLink="/todo"
-          routerLinkActive="active"
-          ariaCurrentWhenActive="page"
-          >Todo</a
-        >
-      </li>
-    </ul>
-  </nav>
-  <main class="p-4 flex flex-col h-full">
-    <router-outlet />
-  </main>
-</ng-container>
+<main class="flex flex-col min-h-dvh">
+  <router-outlet />
+</main>

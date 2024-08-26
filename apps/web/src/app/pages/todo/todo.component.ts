@@ -1,15 +1,17 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ITodo, TodoStatus } from '@todo-app/shared';
+import { ITodo, StandardResponse, TodoStatus } from '@todo-app/shared';
 import {
   CdkDragDrop,
   DragDropModule,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
+import { HttpService } from '../../services/http.service';
 
 interface Todo extends Partial<ITodo> {
+  id?: string;
   title: string;
   description: string;
   status: TodoStatus;
@@ -17,6 +19,9 @@ interface Todo extends Partial<ITodo> {
 
 @Component({
   selector: 'app-todo',
+  host: {
+    class: 'flex-1 flex bg-slate-50',
+  },
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
   templateUrl: './todo.component.html',
@@ -33,12 +38,20 @@ export class TodoComponent {
       status: status as TodoStatus,
     }))
     .filter(({ title }) => isNaN(Number(title)));
+
   isExpanded = false;
   isCardFocused = false;
   isTitleFocused = false;
   isDescriptionFocused = false;
   newTodo: Todo = { title: '', description: '', status: TodoStatus.pending };
   todos: Todo[] = [];
+
+  constructor(private http: HttpService) {
+    this.http.get('/todos').subscribe((response) => {
+      const { data } = response as StandardResponse<Todo[]>;
+      this.todos = data || [];
+    });
+  }
 
   onCardFocus() {
     this.isCardFocused = true;
@@ -124,13 +137,18 @@ export class TodoComponent {
   }
 
   addTodo() {
-    this.todos.push({ ...this.newTodo });
-    this.resetNewTodo();
-    this.isExpanded = false;
+    this.http.post('/todos', { ...this.newTodo }).subscribe((response) => {
+      const { data } = response as StandardResponse<Todo>;
+      if (data) this.todos.push(data);
+      this.resetNewTodo();
+      this.isExpanded = false;
+    });
   }
 
   deleteTodo(todo: Todo) {
-    this.todos = this.todos.filter((t) => t !== todo);
+    this.http.delete(`/todos/${todo.id}`).subscribe(() => {
+      this.todos = this.todos.filter((t) => t.id !== todo.id);
+    });
   }
 
   resetNewTodo() {
@@ -149,19 +167,46 @@ export class TodoComponent {
         event.currentIndex,
       );
     } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
+      // Get a reference to the moved item
+      const movedTodo = event.previousContainer.data[event.previousIndex];
+      const previousStatus = movedTodo.status;
+
+      // Perform the status change only if the API call succeeds
       const movedContainer = this.getStatusFromContainerId(event.container.id);
       if (movedContainer !== null) {
-        const movedTodo = event.container.data[event.currentIndex];
-        movedTodo.status = movedContainer;
-        this.updateTodoStatus(movedTodo);
+        this.updateTodoStatus({
+          ...movedTodo,
+          status: movedContainer,
+        }).subscribe(
+          (response) => {
+            const { data } = response as StandardResponse<Todo>;
+            if (data) {
+              // Move the item to the new container after successful update
+              transferArrayItem(
+                event.previousContainer.data,
+                event.container.data,
+                event.previousIndex,
+                event.currentIndex,
+              );
+              this.todos[this.todos.indexOf(movedTodo)] = data;
+            } else {
+              // If the update fails, revert the status change
+              movedTodo.status = previousStatus;
+            }
+          },
+          (error) => {
+            // If there's an error, revert the status change
+            movedTodo.status = previousStatus;
+          },
+        );
       }
     }
+  }
+
+  private updateTodoStatus(todo: Todo) {
+    return this.http.patch(`/todos/${todo.id}`, {
+      ...todo,
+    });
   }
 
   private getStatusFromContainerId(containerId: string): TodoStatus | null {
@@ -169,12 +214,5 @@ export class TodoComponent {
       (info) => `cdk-drop-list-${info.status}` === containerId,
     );
     return statusInfo ? statusInfo.status : null;
-  }
-
-  private updateTodoStatus(todo: Todo) {
-    const index = this.todos.indexOf(todo);
-    if (index !== -1) {
-      this.todos.splice(index, 1, { ...todo });
-    }
   }
 }

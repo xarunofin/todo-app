@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
     "@todo-app/shared": "*",
+    "ngx-reactive-storage": "^1.2.2",
     "preline": "^2.4.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
