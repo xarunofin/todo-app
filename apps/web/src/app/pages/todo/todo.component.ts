@@ -20,7 +20,7 @@ interface Todo extends Partial<ITodo> {
 @Component({
   selector: 'app-todo',
   host: {
-    class: 'flex-1 flex bg-slate-50',
+    class: 'flex-1 flex',
   },
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],

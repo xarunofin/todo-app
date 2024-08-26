@@ -72,7 +72,7 @@
           {{ statusInfo.title }}
         </h3>
         <ul
-          class="flex flex-col gap-2 min-h-[9.5rem] h-full py-4"
+          class="flex flex-col gap-2 min-h-[9.5rem] py-4"
           [attr.id]="'cdk-drop-list-' + statusInfo.status"
           cdkDropList
           [cdkDropListData]="getTodosByStatus(statusInfo.status)"
@@ -83,7 +83,7 @@
               <div
                 cdkDrag
                 cdkDragBoundary=".kanban-container"
-                class="flex flex-col bg-white border shadow-sm rounded-xl"
+                class="flex flex-col bg-white border shadow-sm rounded-xl break-all text-balance"
               >
                 <div class="p-4 md:p-5">
                   @if (todo.title) {
