@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { TodosModule } from './todos/todos.module';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -21,7 +20,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
-    UsersModule,
     TodosModule,
   ],
   controllers: [AppController],
