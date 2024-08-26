@@ -72,7 +72,7 @@
           {{ statusInfo.title }}
         </h3>
         <ul
-          class="flex flex-col gap-2 min-h-[9.5rem] py-4"
+          class="flex flex-col gap-2 min-h-[9.5rem] py-4 flex-1"
           [attr.id]="'cdk-drop-list-' + statusInfo.status"
           cdkDropList
           [cdkDropListData]="getTodosByStatus(statusInfo.status)"
