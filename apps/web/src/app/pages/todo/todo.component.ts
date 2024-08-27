@@ -45,6 +45,7 @@ export class TodoComponent {
   isDescriptionFocused = false;
   newTodo: Todo = { title: '', description: '', status: TodoStatus.pending };
   todos: Todo[] = [];
+  editingTodo: Todo | null = null;
 
   constructor(private http: HttpService) {
     this.http.get('/todos').subscribe((response) => {
@@ -125,7 +126,12 @@ export class TodoComponent {
   }
 
   collapse() {
-    if (this.newTodo.title.length > 0 || this.newTodo.description.length > 0) {
+    if (this.editingTodo) {
+      this.updateTodo();
+    } else if (
+      this.newTodo.title.length > 0 ||
+      this.newTodo.description.length > 0
+    ) {
       this.addTodo();
     } else {
       this.resetNewTodo();
@@ -151,8 +157,37 @@ export class TodoComponent {
     });
   }
 
+  editTodo(todo: Todo) {
+    this.editingTodo = { ...todo };
+    this.newTodo = { ...todo };
+    this.isExpanded = true;
+    setTimeout(() => {
+      this.descriptionInput.nativeElement.focus();
+    });
+  }
+
+  updateTodo() {
+    if (this.editingTodo) {
+      this.http
+        .patch(`/todos/${this.editingTodo.id}`, { ...this.newTodo })
+        .subscribe((response) => {
+          const { data } = response as StandardResponse<Todo>;
+          if (data) {
+            const index = this.todos.findIndex((t) => t.id === data.id);
+            if (index !== -1) {
+              this.todos[index] = data;
+            }
+          }
+          this.resetNewTodo();
+          this.editingTodo = null;
+          this.isExpanded = false;
+        });
+    }
+  }
+
   resetNewTodo() {
     this.newTodo = { title: '', description: '', status: TodoStatus.pending };
+    this.editingTodo = null;
   }
 
   getTodosByStatus(status: TodoStatus): Todo[] {
@@ -167,21 +202,18 @@ export class TodoComponent {
         event.currentIndex,
       );
     } else {
-      // Get a reference to the moved item
       const movedTodo = event.previousContainer.data[event.previousIndex];
       const previousStatus = movedTodo.status;
 
-      // Perform the status change only if the API call succeeds
       const movedContainer = this.getStatusFromContainerId(event.container.id);
       if (movedContainer !== null) {
         this.updateTodoStatus({
           ...movedTodo,
           status: movedContainer,
-        }).subscribe(
-          (response) => {
+        }).subscribe({
+          next: (response) => {
             const { data } = response as StandardResponse<Todo>;
             if (data) {
-              // Move the item to the new container after successful update
               transferArrayItem(
                 event.previousContainer.data,
                 event.container.data,
@@ -190,15 +222,13 @@ export class TodoComponent {
               );
               this.todos[this.todos.indexOf(movedTodo)] = data;
             } else {
-              // If the update fails, revert the status change
               movedTodo.status = previousStatus;
             }
           },
-          (error) => {
-            // If there's an error, revert the status change
+          error: (_error) => {
             movedTodo.status = previousStatus;
           },
-        );
+        });
       }
     }
   }
