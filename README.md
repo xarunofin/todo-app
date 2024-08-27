@@ -57,8 +57,10 @@ Upload the project on your personal github repository and share the link once do
    http://localhost:8128
    ```
 
-## Insights
+## Reflections
 
+- I tried designing it similarly to how Google Keep Notes behave.
 - I did not implement any authentication and authorization due to time constraints.
 - I focused too much on improving/easing out the workspace/development experience that I wasn't able to focus on other matters.
 - I did not implement any unit tests due to time constraints.
+- I had to do full restarts when I changed the shared library. (Broken `tsc -w` maybe as it doesn't work? I did not have time to investigate)
