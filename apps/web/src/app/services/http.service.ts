@@ -6,9 +6,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class HttpService {
-  constructor(private http: HttpClient) {
-    console.log(environment);
-  }
+  constructor(private http: HttpClient) {}
 
   public get(url: string) {
     return this.http.get(environment.apiURL + url);
