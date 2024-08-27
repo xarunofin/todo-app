@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-not-found',
@@ -6,7 +7,7 @@ import { Component } from '@angular/core';
     class: 'flex-1 flex flex-col items-center',
   },
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './not-found.component.html',
 })
 export class NotFoundComponent {}
